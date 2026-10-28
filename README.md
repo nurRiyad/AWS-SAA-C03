@@ -4,12 +4,13 @@ A small static study site that turns numbered exam Markdown files into focused r
 
 ## Requirements
 
-- Node.js 20.19+ or 22.12+
+- Node.js 24 (use `nvm use` to select the version pinned in `.nvmrc`)
 - npm
 
 ## Run locally
 
 ```sh
+nvm use
 npm install
 npm run dev
 ```
@@ -18,7 +19,7 @@ Open the local URL printed by Vite (usually <http://localhost:5173>).
 
 ## Add an exam
 
-Add a numbered Markdown file under `exams/`, for example `exams/2.exam.md`. Include YAML frontmatter with `title` and `number`, followed by a heading for the numbered revision list and a second-level heading for the pattern summary:
+Add a numbered Markdown file under `data/exams/`, for example `data/exams/2.exam.md`. Include YAML frontmatter with `title` and `number`, followed by a heading for the numbered revision list and a second-level heading for the pattern summary:
 
 ```md
 ---
@@ -39,7 +40,7 @@ number: 2
 **Situation → Service**
 ```
 
-The exam catalog is generated from files matching `N.exam.md`; no separate registry edit is needed. Each exam is published at `/exams/N/`.
+The exam catalog is generated from files matching `N.exam.md` in `data/exams/`; no separate registry edit is needed. Each exam is published at `/exams/N/`. The original practice-dump PDF is kept at `data/AWS SAA-C03 Dumps.pdf`.
 
 ## Build and preview
 

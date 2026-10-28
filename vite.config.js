@@ -2,9 +2,9 @@ import { defineConfig } from 'vite';
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const exams = readdirSync(new URL('./exams/', import.meta.url))
+const exams = readdirSync(new URL('./data/exams/', import.meta.url))
   .filter((file) => /^\d+\.exam\.md$/.test(file));
-const examData = Object.fromEntries(exams.map((file) => [file.match(/^(\d+)\.exam\.md$/)[1], readFileSync(new URL(`./exams/${file}`, import.meta.url), 'utf8')]));
+const examData = Object.fromEntries(exams.map((file) => [file.match(/^(\d+)\.exam\.md$/)[1], readFileSync(new URL(`./data/exams/${file}`, import.meta.url), 'utf8')]));
 
 function examPages() {
   return {
