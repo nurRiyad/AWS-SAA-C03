@@ -1,115 +1,66 @@
-import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 
 const params = new URLSearchParams(location.search);
 const examId = params.get('id') || document.querySelector('#revision-content')?.dataset.exam || '1';
 const content = document.querySelector('#revision-content');
 
-marked.setOptions({ breaks: false, gfm: true });
+function renderRevisionSource(markdown) {
+  const source = markdown.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
+  const lines = source.split(/\r?\n/);
+  const guideStart = lines.findIndex((line) => /^##\s+.+Question Revision Guide/.test(line));
+  const patternsStart = lines.findIndex((line) => /^##\s+The patterns .*memorize/.test(line));
+  if (guideStart < 0 || patternsStart < 0) throw new Error('Could not find the revision sections in this Markdown file.');
 
-function parsePointDetails(item) {
-  const details = [];
-  for (const paragraph of [...item.querySelectorAll(':scope > p')]) {
-    const text = paragraph.innerHTML.trim();
-    const match = text.match(/^(?:<strong>)?(Logic|Remember|Trap|Important trap):(?:<\/strong>)?\s*/i);
-    if (match) {
-      const firstLabel = match[1].toLowerCase().startsWith('important') ? 'Trap' : match[1];
-      const remainder = text.slice(match[0].length);
-      const inlineParts = remainder.split(/\s+(?:<strong>)?(Remember|Trap):(?:<\/strong>)?\s*/i);
-      details.push({ label: firstLabel, text: inlineParts[0] });
-      for (let index = 1; index < inlineParts.length; index += 2) {
-        details.push({ label: inlineParts[index][0].toUpperCase() + inlineParts[index].slice(1).toLowerCase(), text: inlineParts[index + 1] || '' });
-      }
-      paragraph.remove();
+  const items = [];
+  let current = null;
+  for (const line of lines.slice(guideStart + 1, patternsStart)) {
+    const numbered = line.match(/^(\d+)\.\s+(.+)$/);
+    if (numbered) {
+      if (current) items.push(current);
+      current = { number: Number(numbered[1]), title: numbered[2], details: [] };
       continue;
     }
-    const previous = details.at(-1);
-    if (previous?.label === 'Logic') {
-      details.push({ label: 'Remember', text });
-      paragraph.remove();
+    if (!current || !line.trim()) continue;
+    const detail = line.trim();
+    const label = detail.match(/^\*\*(Remember|Trap|Important trap):\*\*\s*(.*)$/);
+    if (label) {
+      current.details.push({ label: label[1].toLowerCase().startsWith('important') ? 'Trap' : label[1], text: label[2] });
+    } else if (/^Logic:/.test(detail)) {
+      const body = detail.replace(/^Logic:\s*/, '');
+      const parts = body.split(/\s+\*\*(Remember|Trap):\*\*\s*/);
+      current.details.push({ label: 'Logic', text: parts[0] });
+      for (let index = 1; index < parts.length; index += 2) current.details.push({ label: parts[index], text: parts[index + 1] || '' });
+    } else if (current.details.at(-1)?.label === 'Logic') {
+      current.details.at(-1).text += ` ${detail}`;
+    } else {
+      current.details.push({ label: 'Remember', text: detail });
     }
   }
-  return details;
-}
+  if (current) items.push(current);
 
-function makeCard(item, index) {
-  const titleParagraph = item.querySelector(':scope > p');
-  const title = titleParagraph?.innerHTML || '';
-  const detailSource = item.cloneNode(true);
-  detailSource.querySelector(':scope > p')?.remove();
-  item.replaceChildren(...detailSource.children);
-  const details = parsePointDetails(item);
-  const detailHtml = details.map(({ label, text }) => `<div class="point-detail detail-${label.toLowerCase()}"><span class="detail-label">${label}</span><p>${text}</p></div>`).join('');
-  const article = document.createElement('article');
-  article.className = 'point-card';
-  article.innerHTML = `<span class="point-number">${String(index + 1).padStart(2, '0')}</span><div class="point-main"><h3>${title}</h3>${detailHtml}</div><label class="check-control"><input class="point-checkbox" type="checkbox" aria-label="Mark revision point ${index + 1} complete"><span class="checkmark" aria-hidden="true"></span></label>`;
-  return article;
+  const inline = (text) => text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>');
+  const cards = items.map((item) => {
+    const detailHtml = item.details.map(({ label, text }) => `<div class="point-detail detail-${label.toLowerCase()}"><span class="detail-label">${label}</span><p>${inline(text)}</p></div>`).join('');
+    return `<article class="point-card"><span class="point-number">${String(item.number).padStart(2, '0')}</span><div class="point-main"><h3>${inline(item.title)}</h3>${detailHtml}</div><label class="check-control"><input class="point-checkbox" type="checkbox" aria-label="Mark revision point ${item.number} complete"><span class="checkmark" aria-hidden="true"></span></label></article>`;
+  }).join('');
+
+  const patterns = lines.slice(patternsStart + 1).filter((line) => line.trim() && line.trim() !== '---').map((line) => {
+    const text = line.trim();
+    if (/^\*\*[^*]+\*\*$/.test(text)) return `<div class="pattern-row">${text}</div>`;
+    return `<p class="pattern-note">${text}</p>`;
+  }).join('');
+  return `<h2>Revision points</h2><section class="point-list" aria-label="Revision questions">${cards}</section><section class="patterns-section"><h2>The patterns to memorize</h2>${patterns}</section>`;
 }
 
 function renderExam(markdown) {
   const frontMatter = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
   const title = frontMatter?.[1].match(/^title:\s*(.+)$/m)?.[1] || `Exam ${examId}`;
   const number = Number(frontMatter?.[1].match(/^number:\s*(\d+)$/m)?.[1] || examId);
-  const html = DOMPurify.sanitize(marked.parse(markdown.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '')));
-  const template = document.createElement('template');
-  template.innerHTML = html;
-  const headings = [...template.content.querySelectorAll('h2')];
-  const guideHeading = headings.find((heading) => /question revision guide/i.test(heading.textContent));
-  const patternsHeading = headings.find((heading) => /patterns .* memorize/i.test(heading.textContent));
-  if (!guideHeading || !patternsHeading) throw new Error('Could not find the revision sections in this Markdown file.');
-
-  const pointsList = guideHeading.nextElementSibling;
-  const points = pointsList?.tagName === 'OL' ? [...pointsList.children] : [];
   document.title = `${title} · AWS Exam Revision`;
   document.querySelector('#exam-label').textContent = `Exam ${String(number).padStart(2, '0')}`;
   document.querySelector('#exam-title').textContent = title;
-  const intro = [];
-  for (const node of [...template.content.children]) {
-    if (node === guideHeading) break;
-    if (node.tagName === 'P') intro.push(node);
-  }
-  const summaryHeading = guideHeading.cloneNode(true);
-  content.replaceChildren(...intro, summaryHeading);
-  summaryHeading.textContent = 'Revision points';
-  const pointSection = document.createElement('section');
-  pointSection.className = 'point-list';
-  pointSection.setAttribute('aria-label', 'Revision questions');
-  points.forEach((point, index) => pointSection.append(makeCard(point, index)));
-  content.append(pointSection);
-  if (pointsList) pointsList.remove();
-
-  const patterns = document.createElement('section');
-  patterns.className = 'patterns-section';
-  patternsHeading.textContent = 'The patterns to memorize';
-  patterns.append(patternsHeading);
-  let currentGroup = null;
-  const patternsIndex = [...template.content.children].indexOf(patternsHeading);
-  const patternChildren = [];
-  for (const element of [...template.content.children].slice(patternsIndex + 1)) {
-    if (element.tagName === 'HR') break;
-    if (element.tagName === 'P' && /recognizing the/i.test(element.textContent)) break;
-    patternChildren.push(element);
-  }
-  for (const element of patternChildren) {
-    if (element.tagName === 'P' && element.querySelector('strong')) {
-      currentGroup = document.createElement('div');
-      currentGroup.className = 'pattern-group';
-      const heading = document.createElement('h3');
-      heading.innerHTML = element.innerHTML;
-      currentGroup.append(heading);
-      patterns.append(currentGroup);
-    } else if (element.tagName === 'P') {
-      if (!currentGroup) { currentGroup = document.createElement('div'); currentGroup.className = 'pattern-group'; patterns.append(currentGroup); }
-      const row = document.createElement('div');
-      row.className = 'pattern-row';
-      row.innerHTML = element.innerHTML;
-      currentGroup.append(row);
-    }
-  }
-  const finalParagraph = [...template.content.children].find((element) => element.tagName === 'P' && /recognizing the/i.test(element.textContent));
-  if (finalParagraph) patterns.append(finalParagraph.cloneNode(true));
-  content.append(patterns);
-  return points.length;
+  content.innerHTML = DOMPurify.sanitize(renderRevisionSource(markdown));
+  return content.querySelectorAll('.point-card').length;
 }
 
 try {

@@ -12,9 +12,7 @@ function examPages() {
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const match = req.url?.match(/^\/exams\/(\d+)\/?(?:\?.*)?$/);
-        if (!match) return next();
-        const examFile = `${match[1]}.exam.md`;
-        if (!exams.includes(examFile)) return next();
+        if (!match || !exams.includes(`${match[1]}.exam.md`)) return next();
         req.url = `/exam.html?id=${match[1]}`;
         next();
       });
@@ -22,9 +20,12 @@ function examPages() {
     transformIndexHtml: {
       order: 'pre',
       handler(html, ctx) {
-        const match = ctx.path.match(/^\/exams\/(\d+)\//);
+        const match = (ctx.path + (ctx.originalUrl || '')).match(/\/exams\/(\d+)(?:\/|\?|$)/);
         if (!match) return html;
-        return html.replace('id="revision-content"', `id="revision-content" data-exam="${match[1]}"`);
+        return html
+          .replaceAll('href="./styles.css"', 'href="../../styles.css"')
+          .replaceAll('src="./src/exam.js"', 'src="../../src/exam.js"')
+          .replace('id="revision-content"', `id="revision-content" data-exam="${match[1]}"`);
       },
     },
     writeBundle() {
