@@ -27,7 +27,7 @@ function examPages() {
         return html.replace('id="revision-content"', `id="revision-content" data-exam="${match[1]}"`);
       },
     },
-    closeBundle() {
+    writeBundle() {
       const template = readFileSync(resolve('dist/exam.html'), 'utf8');
       for (const file of exams) {
         const number = file.match(/^(\d+)\.exam\.md$/)[1];
