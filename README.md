@@ -1,4 +1,4 @@
-# AWS Exam Revision
+# AWS Exam Prep
 
 A static AWS Certified Solutions Architect – Associate (SAA-C03) study site. It provides exam-specific revision guides and multiple-choice practice for the question banks in `data/exams/`.
 
@@ -21,6 +21,7 @@ Open the local URL printed by Vite, usually <http://localhost:5174>.
 
 ```text
 index.html                 Home page entry
+public/favicon.svg         Site favicon
 src/
   home.js                  Exam catalog behavior
   mcq.js                   Multiple-choice practice behavior

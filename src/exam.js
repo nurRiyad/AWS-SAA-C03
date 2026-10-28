@@ -56,7 +56,7 @@ function renderExam(markdown) {
   const frontMatter = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
   const title = frontMatter?.[1].match(/^title:\s*(.+)$/m)?.[1] || `Exam ${examId}`;
   const number = Number(frontMatter?.[1].match(/^number:\s*(\d+)$/m)?.[1] || examId);
-  document.title = `${title} · AWS Exam Revision`;
+  document.title = `${title} · AWS Exam Prep`;
   document.querySelector('#exam-label').textContent = `Exam ${String(number).padStart(2, '0')}`;
   document.querySelector('#exam-title').textContent = title;
   content.innerHTML = DOMPurify.sanitize(renderRevisionSource(markdown), { USE_PROFILES: { html: true } });

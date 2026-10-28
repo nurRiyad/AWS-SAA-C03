@@ -22,6 +22,18 @@ const exams = Object.fromEntries(examDirectories.map(({ name }) => {
   return [name, { ...metadata, revision, questions: questionBank.questions }];
 }));
 
+function pageMetadata(html, number, view) {
+  const exam = exams[number];
+  const title = view === 'revision'
+    ? `Exam ${number} Revision Guide | AWS Exam Prep`
+    : `Exam ${number} MCQ Practice | AWS Exam Prep`;
+  const description = view === 'revision'
+    ? `Review key AWS Solutions Architect Associate SAA-C03 concepts with the Exam ${number} revision guide.`
+    : `Practice for the AWS Solutions Architect Associate SAA-C03 exam with ${exam.questionCount} questions in Exam ${number}.`;
+  return html.replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
+    .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${description}">`);
+}
+
 function examRoutes() {
   return {
     name: 'exam-routes',
@@ -49,7 +61,7 @@ function examRoutes() {
           .replaceAll('src="../', 'src="/src/')
           .replace('data-exam=""', `data-exam="${number}"`);
         try {
-          const html = await server.transformIndexHtml(req.url, source);
+          const html = await server.transformIndexHtml(req.url, pageMetadata(source, number, view));
           res.statusCode = 200;
           res.setHeader('Content-Type', 'text/html');
           res.end(html);
@@ -74,7 +86,7 @@ function examRoutes() {
           }
           const template = readFileSync(resolve(`dist/${route.template}`), 'utf8');
           const relativeAssets = '../'.repeat(route.segments);
-          const page = template
+          const page = pageMetadata(template, number, route.view)
             .replace(/="(?:\.\.\/|\.\/)*assets\//g, `="${relativeAssets}assets/`)
             .replace('data-exam=""', `data-exam="${number}"`);
           const outputDir = resolve(`dist/exams/${number}${route.suffix}`);
