@@ -10,6 +10,7 @@ Create a complete, accurate, easy-to-recall revision guide for each requested ex
 ## Read the source
 
 - Locate `data/exams/<number>/` in the workspace. Read `exam.json`, every question and answer option in `questions.json`, and `review.json`. Read `data/exams/1/revision.md` as the canonical example; inspect the revision renderer and existing guides when needed.
+- Source PDFs in `data/local-pdfs/` are local-only: keep the folder ignored and never stage, commit, force-add, or push its files. Do not delete local copies.
 - Examine the source PDF pages for flagged extraction issues when possible, including images, diagrams, and duplicated or missing answer labels. If the source remains unclear, explicitly mark the corresponding guide entry as needing source review and do not invent an answer.
 - Treat the supplied answers and explanations as unverified. Check questionable or time-sensitive claims against current official AWS documentation and the official SAA-C03 exam guide. Preserve relevant constraints instead of presenting a scenario-specific rule as universal.
 

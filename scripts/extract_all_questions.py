@@ -6,7 +6,7 @@ from extract_pdf_questions import HEADER,parse_card
 parser=argparse.ArgumentParser(description='Extract the whole source PDF in batches of 65')
 parser.add_argument('--force',action='store_true',help='Overwrite existing files')
 args=parser.parse_args()
-root=Path('data/extracted'); root.mkdir(parents=True,exist_ok=True); pdf_path=Path('data/AWS SAA-C03 Dumps.pdf')
+root=Path('data/extracted'); root.mkdir(parents=True,exist_ok=True); pdf_path=Path('data/local-pdfs/AWS SAA-C03 Dumps.pdf')
 current=None; batch=[]; prev=None; completed=0
 
 def flush():

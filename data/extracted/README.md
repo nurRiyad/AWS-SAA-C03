@@ -1,6 +1,6 @@
 # Extracting the AWS question PDF
 
-The source is `data/AWS SAA-C03 Dumps.pdf`. Each output file holds up to 65 consecutive source questions. `questions-0001-0065.json` contains source questions 1 through 65. The last batch can have fewer than 65 questions.
+The source is `data/local-pdfs/AWS SAA-C03 Dumps.pdf`. Each output file holds up to 65 consecutive source questions. `questions-0001-0065.json` contains source questions 1 through 65. The last batch can have fewer than 65 questions.
 
 ## Run one batch
 

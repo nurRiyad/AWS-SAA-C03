@@ -72,7 +72,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--batch', type=int, required=True, help='1-based batch number')
     parser.add_argument('--size', type=int, default=65)
-    parser.add_argument('--pdf', type=Path, default=ROOT / 'data/AWS SAA-C03 Dumps.pdf')
+    parser.add_argument('--pdf', type=Path, default=ROOT / 'data/local-pdfs/AWS SAA-C03 Dumps.pdf')
     parser.add_argument('--output-dir', type=Path, default=ROOT / 'data/extracted')
     parser.add_argument('--force', action='store_true', help='Replace existing output files')
     args = parser.parse_args()

@@ -4,4 +4,6 @@ dist/
 .DS_Store
 .vercel
 
+data/local-pdfs/
+# Keep the previous source location ignored as well.
 data/AWS SAA-C03 Dumps.pdf

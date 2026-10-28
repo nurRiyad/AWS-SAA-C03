@@ -7,6 +7,7 @@ This repository is a static AWS SAA-C03 study site built with Vite. It loads num
 ## Structure and conventions
 
 - Keep the project root limited to configuration, documentation, and the home `index.html` entry. Put application JavaScript in `src/`, page templates in `src/pages/`, and shared styles in `src/styles/`.
+- Keep `data/local-pdfs/` for local-only source PDFs. Never stage, commit, force-add, or push files in that folder to Git; preserve its `.gitignore` rule and do not delete local copies.
 - Exam content belongs in `data/exams/<number>/`. Keep each `exam.json`, `questions.json`, `review.json`, and optional `revision.md` together. The exam catalog is discovered from numbered directories; do not add a parallel hard-coded registry.
 - When adding or editing a revision guide, read Exam 1's guide and follow `.agents/skills/aws-exam-revision/SKILL.md`. Match the exact question count and order, use clear situation-to-solution cues, and include the pattern summary.
 - Treat supplied answers and explanations as source material to verify, not unquestionable facts. Flag demonstrated content errors in the exam's `review.json` with an authoritative AWS reference. Preserve existing review findings. Flag uncertain extraction or source material as unresolved; do not invent missing content.
