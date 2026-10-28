@@ -1,7 +1,7 @@
 import DOMPurify from 'dompurify';
 
 const params = new URLSearchParams(location.search);
-const examId = params.get('id') || document.querySelector('#revision-content')?.dataset.exam || '1';
+const examId = params.get('id') || document.querySelector('[data-exam]')?.dataset.exam || '1';
 const content = document.querySelector('#revision-content');
 
 function renderRevisionSource(markdown) {
@@ -64,9 +64,9 @@ function renderExam(markdown) {
 }
 
 try {
-  const fileName = __EXAM_FILES__.find((file) => file === `${examId}.exam.md`);
-  if (!fileName) throw new Error('This exam could not be found.');
-  const markdown = __EXAM_DATA__[examId];
+  const exam = __EXAMS__[examId];
+  if (!exam) throw new Error('This exam could not be found.');
+  const markdown = exam.revision;
   const total = renderExam(markdown);
   const points = [...content.querySelectorAll('.point-card')];
   const startedAt = Date.now();

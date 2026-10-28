@@ -15,6 +15,28 @@ h1 { margin: 0; font-size: clamp(36px,7vw,52px); line-height: 1.12; letter-spaci
 .exam-list { display: grid; gap: 10px; }
 .exam-card { display: flex; align-items: center; gap: 18px; min-height: 86px; padding: 17px 20px; border: 1px solid var(--line); border-radius: 12px; background: #fff; text-decoration: none; transition: border-color .18s,transform .18s,box-shadow .18s; }
 .exam-card:hover { border-color: #cbd8cc; transform: translateY(-1px); box-shadow: 0 8px 24px #263a2910; }
+.study-options { display: grid; gap: 14px; margin-top: 28px; }
+.study-option { display: grid; grid-template-columns: 48px minmax(0,1fr) 24px; align-items: center; gap: 17px; padding: 22px; border: 1px solid var(--line); border-radius: 14px; background: #fff; text-decoration: none; transition: transform .18s,border-color .18s,box-shadow .18s; }
+.study-option:hover { transform: translateY(-1px); border-color: #cbd8cc; box-shadow: 0 8px 24px #263a2910; }
+.option-icon { display: grid; width: 46px; height: 46px; place-items: center; border-radius: 12px; background: var(--green-soft); color: var(--green); font-size: 22px; font-weight: 700; }
+.mcq-option .option-icon { background: #eef0f5; color: #606c87; }
+.option-copy { display: grid; gap: 5px; }
+.option-copy strong { font-size: 17px; }
+.option-copy > span:last-child { color: var(--muted); font-size: 13px; }
+.option-kicker { color: var(--green); font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.mcq-option .option-kicker { color: #68738d; }
+.option-arrow { color: #8a9188; font-size: 20px; }
+.empty-exam { margin-top: 22px; padding: clamp(24px,5vw,40px); border: 1px solid var(--line); border-radius: 15px; background: #fff; }
+.empty-exam-icon { display: grid; width: 44px; height: 44px; place-items: center; margin-bottom: 25px; border-radius: 12px; background: #eef0f5; color: #606c87; font-size: 21px; }
+.empty-exam .eyebrow { margin-bottom: 9px; color: #68738d; }
+.empty-exam h2 { margin: 0; font-size: clamp(21px,4vw,27px); letter-spacing: -.03em; }
+.empty-exam > p:not(.eyebrow) { max-width: 520px; margin: 12px 0 25px; color: #6b7068; font-size: 14px; line-height: 1.7; }
+.exam-placeholder-meta { display: flex; justify-content: space-between; margin-bottom: 9px; color: var(--muted); font-size: 12px; }
+.exam-placeholder-meta strong { color: #454b42; font-variant-numeric: tabular-nums; }
+.empty-exam .progress-track { height: 6px; }
+.empty-exam .progress-track span { background: #8290af; }
+.text-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 25px; color: var(--green); font-size: 13px; font-weight: 600; text-decoration: none; }
+.text-link:hover { text-decoration: underline; }
 .exam-number { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 10px; background: var(--green-soft); color: var(--green); font-size: 14px; font-weight: 700; }
 .exam-info { display: grid; gap: 5px; flex: 1; }
 .exam-info strong { font-size: 15px; font-weight: 600; }
@@ -71,5 +93,5 @@ h1 { margin: 0; font-size: clamp(36px,7vw,52px); line-height: 1.12; letter-spaci
 .revision-content ul { padding-left: 20px; }
 .revision-content ul li { margin: 7px 0; color: #555b53; font-size: 14px; line-height: 1.65; }
 .revision-shell .site-footer { padding-bottom: 42px; }
-@media(max-width:560px) { .home-shell{padding-top:64px}.site-heading{margin-bottom:42px}.top-nav{padding:23px 0 40px}.point-card{grid-template-columns:29px minmax(0,1fr) 21px;gap:10px;padding:15px 13px}.point-number{width:29px;height:29px}.point-main h3{font-size:14px}.point-detail{grid-template-columns:52px minmax(0,1fr);column-gap:10px;padding:9px}.detail-label{font-size:9px}.point-detail p{line-height:20px}.patterns-section{padding:17px}.revision-content h2{margin-top:32px} }
+@media(max-width:560px) { .home-shell{padding-top:64px}.site-heading{margin-bottom:42px}.top-nav{padding:23px 0 40px}.point-card{grid-template-columns:29px minmax(0,1fr) 21px;gap:10px;padding:15px 13px}.point-number{width:29px;height:29px}.point-main h3{font-size:14px}.point-detail{grid-template-columns:52px minmax(0,1fr);column-gap:10px;padding:9px}.detail-label{font-size:9px}.point-detail p{line-height:20px}.patterns-section{padding:17px}.revision-content h2{margin-top:32px}.study-option{grid-template-columns:40px minmax(0,1fr) 18px;gap:12px;padding:17px}.option-icon{width:40px;height:40px}.option-copy strong{font-size:15px}.empty-exam{padding:22px 18px} }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important} }

@@ -1,6 +1,6 @@
 # AWS Exam Revision
 
-A small static study site that turns numbered exam Markdown files into focused revision pages with checkboxes, per-session elapsed time, and progress tracking.
+A static AWS SAA-C03 study site with an overview for each exam, a revision guide, and a multiple-choice practice area.
 
 ## Requirements
 
@@ -19,7 +19,16 @@ Open the local URL printed by Vite (usually <http://localhost:5174>).
 
 ## Add an exam
 
-Add a numbered Markdown file under `data/exams/`, for example `data/exams/2.exam.md`. Include YAML frontmatter with `title` and `number`, followed by a heading for the numbered revision list and a second-level heading for the pattern summary:
+Each exam lives in its own folder:
+
+```text
+data/exams/1/
+  exam.json       # display metadata and question count
+  questions.json  # MCQ bank (empty until questions are added)
+  revision.md     # revision guide
+```
+
+To add an exam, create `data/exams/2/` with the same three files. Put its display title, revision filename, question filename, and expected MCQ count in `exam.json`. The revision Markdown uses YAML frontmatter followed by a numbered guide and pattern summary, for example:
 
 ```md
 ---
@@ -40,7 +49,7 @@ number: 2
 **Situation → Service**
 ```
 
-The exam catalog is generated from files matching `N.exam.md` in `data/exams/`; no separate registry edit is needed. Each exam is published at `/exams/N/`. The original practice-dump PDF is kept at `data/AWS SAA-C03 Dumps.pdf`.
+The exam catalog is generated from numbered folders under `data/exams/`; no separate registry edit is needed. Each exam has an overview at `/exams/N/`, a revision guide at `/exams/N/revision/`, and MCQ practice at `/exams/N/mcq/`. Exam 1 has its revision guide ready and an empty 66-question bank. The original practice-dump PDF is kept at `data/AWS SAA-C03 Dumps.pdf`.
 
 ## Build and preview
 
