@@ -1,0 +1,20 @@
+{
+  "source": "AWS SAA-C03 Dumps.pdf",
+  "batch": 8,
+  "issues": [
+    {
+      "question": 477,
+      "sourcePages": [
+        488,
+        489,
+        490
+      ],
+      "issues": [
+        "No option labels found",
+        "Unexpected option sequence: []",
+        "Unexpected answer: D"
+      ]
+    }
+  ],
+  "note": "Automated checks do not prove exact text fidelity. Review PDF pages against JSON."
+}

@@ -1,4 +1,7 @@
 import DOMPurify from 'dompurify';
+import { marked } from 'marked';
+
+marked.setOptions({ breaks: true });
 
 const params = new URLSearchParams(location.search);
 const examId = params.get('id') || document.querySelector('[data-exam]')?.dataset.exam || '1';
@@ -8,7 +11,7 @@ function renderRevisionSource(markdown) {
   const source = markdown.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
   const lines = source.split(/\r?\n/);
   const guideStart = lines.findIndex((line) => /^##\s+.+Question Revision Guide/.test(line));
-  const patternsStart = lines.findIndex((line) => /^##\s+The patterns .*memorize/.test(line));
+  const patternsStart = lines.findIndex((line) => /^##\s+The patterns .*memorize/i.test(line));
   if (guideStart < 0 || patternsStart < 0) throw new Error('Could not find the revision sections in this Markdown file.');
 
   const items = [];
@@ -20,7 +23,7 @@ function renderRevisionSource(markdown) {
       current = { number: Number(numbered[1]), title: numbered[2], details: [] };
       continue;
     }
-    if (!current || !line.trim()) continue;
+    if (!current || !line.trim() || /^---\s*$/.test(line.trim())) continue;
     const detail = line.trim();
     const label = detail.match(/^\*\*(Remember|Trap|Important trap):\*\*\s*(.*)$/);
     if (label) {
@@ -38,17 +41,14 @@ function renderRevisionSource(markdown) {
   }
   if (current) items.push(current);
 
-  const inline = (text) => text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>');
+  const inline = (text) => marked.parseInline(text);
   const cards = items.map((item) => {
     const detailHtml = item.details.map(({ label, text }) => `<div class="point-detail detail-${label.toLowerCase()}"><span class="detail-label">${label}</span><p>${inline(text)}</p></div>`).join('');
     return `<article class="point-card"><span class="point-number">${String(item.number).padStart(2, '0')}</span><div class="point-main"><h3>${inline(item.title)}</h3>${detailHtml}</div><label class="check-control"><input class="point-checkbox" type="checkbox" aria-label="Mark revision point ${item.number} complete"><span class="checkmark" aria-hidden="true"></span></label></article>`;
   }).join('');
 
-  const patterns = lines.slice(patternsStart + 1).filter((line) => line.trim() && line.trim() !== '---').map((line) => {
-    const text = line.trim();
-    if (/^\*\*[^*]+\*\*$/.test(text)) return `<div class="pattern-row">${text}</div>`;
-    return `<p class="pattern-note">${text}</p>`;
-  }).join('');
+  const patternMarkdown = lines.slice(patternsStart + 1).join('\n').replace(/^---\s*$/gm, '').trim();
+  const patterns = marked.parse(patternMarkdown);
   return `<h2>Revision points</h2><section class="point-list" aria-label="Revision questions">${cards}</section><section class="patterns-section"><h2>The patterns to memorize</h2>${patterns}</section>`;
 }
 
@@ -59,13 +59,14 @@ function renderExam(markdown) {
   document.title = `${title} · AWS Exam Revision`;
   document.querySelector('#exam-label').textContent = `Exam ${String(number).padStart(2, '0')}`;
   document.querySelector('#exam-title').textContent = title;
-  content.innerHTML = DOMPurify.sanitize(renderRevisionSource(markdown));
+  content.innerHTML = DOMPurify.sanitize(renderRevisionSource(markdown), { USE_PROFILES: { html: true } });
   return content.querySelectorAll('.point-card').length;
 }
 
 try {
   const exam = __EXAMS__[examId];
   if (!exam) throw new Error('This exam could not be found.');
+  if (!exam.revision) throw new Error('A revision guide is not available for this exam yet.');
   const markdown = exam.revision;
   const total = renderExam(markdown);
   const points = [...content.querySelectorAll('.point-card')];

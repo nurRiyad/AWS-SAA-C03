@@ -1,3 +1,5 @@
+import { getAttempts } from './storage.js';
+
 const list = document.querySelector('#exam-list');
 
 try {
@@ -5,11 +7,18 @@ try {
   exams.sort((a, b) => a.number - b.number);
   document.querySelector('#exam-count').textContent = `${exams.length} ${exams.length === 1 ? 'exam' : 'exams'}`;
   for (const exam of exams) {
-    const revisionCount = (exam.revision.match(/^\d+\.\s/gm) || []).length;
+    const revisionCount = (exam.revision?.match(/^\d+\.\s/gm) || []).length;
     const card = document.createElement('article');
     card.className = 'exam-card';
-    card.innerHTML = `<span class="exam-number">${String(exam.number).padStart(2, '0')}</span><span class="exam-info"><strong></strong><span>${exam.questionCount} MCQs · ${revisionCount} revision points</span></span><nav class="exam-actions" aria-label="Study options"></nav>`;
+    card.innerHTML = `<span class="exam-number">${String(exam.number).padStart(2, '0')}</span><span class="exam-info"><strong></strong><span>${exam.questionCount} MCQs${revisionCount ? ` · ${revisionCount} revision points` : ''}</span></span><nav class="exam-actions" aria-label="Study options"></nav>`;
     card.querySelector('.exam-info strong').textContent = exam.title;
+    const latest = getAttempts(exam.number).at(-1);
+    if (latest && Number.isFinite(latest.correct) && Number.isFinite(latest.total)) {
+      const score = document.createElement('span');
+      score.className = 'exam-score';
+      score.textContent = `Latest score: ${latest.correct}/${latest.total} · ${latest.percent}%`;
+      card.querySelector('.exam-info').append(score);
+    }
 
     const actions = card.querySelector('.exam-actions');
     const takeExam = document.createElement('a');
@@ -24,7 +33,8 @@ try {
     revise.textContent = 'Revise';
     revise.setAttribute('aria-label', `Revise Exam ${exam.number}`);
 
-    actions.append(takeExam, revise);
+    actions.append(takeExam);
+    actions.append(revise);
     list.append(card);
   }
 } catch {

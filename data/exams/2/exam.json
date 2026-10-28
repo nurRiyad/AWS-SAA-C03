@@ -1,0 +1,10 @@
+{
+  "number": 2,
+  "title": "Day 2 — AWS SAA-C03",
+  "questionsFile": "questions.json",
+  "questionCount": 65,
+  "sourceFirstQuestion": 66,
+  "sourceLastQuestion": 130,
+  "revisionTitle": "Day 2 — 65 Question Revision Guide",
+  "revisionFile": "revision.md"
+}

@@ -1,0 +1,17 @@
+{
+  "source": "AWS SAA-C03 Dumps.pdf",
+  "batch": 14,
+  "issues": [
+    {
+      "question": 868,
+      "sourcePages": [
+        889,
+        890
+      ],
+      "issues": [
+        "Unexpected option sequence: ['B', 'C', 'D']"
+      ]
+    }
+  ],
+  "note": "Automated checks do not prove exact text fidelity. Review PDF pages against JSON."
+}

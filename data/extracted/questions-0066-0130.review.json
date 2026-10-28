@@ -1,0 +1,29 @@
+{
+  "source": "AWS SAA-C03 Dumps.pdf",
+  "batch": 2,
+  "issues": [
+    {
+      "question": 96,
+      "sourcePages": [
+        96,
+        97
+      ],
+      "issues": [
+        "Question may contain a diagram, policy, or other content not present in the text layer; inspect the source pages"
+      ]
+    },
+    {
+      "question": 125,
+      "sourcePages": [
+        125,
+        126,
+        127
+      ],
+      "issues": [
+        "Unexpected option sequence: ['A', 'B', 'C', 'D', 'D']",
+        "Unexpected answer: AE"
+      ]
+    }
+  ],
+  "note": "Automated checks do not prove exact text fidelity. Review PDF pages against JSON."
+}

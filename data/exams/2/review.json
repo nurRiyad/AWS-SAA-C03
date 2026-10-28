@@ -1,0 +1,95 @@
+{
+  "source": "AWS SAA-C03 Dumps.pdf",
+  "batch": 2,
+  "issues": [
+    {
+      "question": 67,
+      "sourcePages": [
+        66,
+        67,
+        68
+      ],
+      "issues": [
+        "The supplied explanation claims extending the SQS visibility timeout guarantees exactly-once processing. Standard SQS can deliver duplicates even within the visibility timeout; use idempotent processing."
+      ],
+      "references": [
+        "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html"
+      ]
+    },
+    {
+      "question": 70,
+      "sourcePages": [
+        70,
+        71
+      ],
+      "issues": [
+        "The supplied explanation incorrectly states that Network Load Balancers cannot perform HTTP health checks. NLB target groups support HTTP and HTTPS health checks."
+      ],
+      "references": [
+        "https://docs.aws.amazon.com/elasticloadbalancing/latest/network/target-group-health-checks.html"
+      ]
+    },
+    {
+      "question": 71,
+      "sourcePages": [
+        71,
+        72
+      ],
+      "issues": [
+        "The supplied explanation asserts that DynamoDB point-in-time recovery meets a one-hour restore time. Restore duration varies and a one-hour RTO must be validated."
+      ],
+      "references": [
+        "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/pointintimerecovery_restores.html"
+      ]
+    },
+    {
+      "question": 96,
+      "sourcePages": [
+        96,
+        97
+      ],
+      "issues": [
+        "Question may contain a diagram, policy, or other content not present in the text layer; inspect the source pages"
+      ]
+    },
+    {
+      "question": 98,
+      "sourcePages": [
+        98,
+        99
+      ],
+      "issues": [
+        "The supplied answer implies increasing visibility timeout resolves duplicate processing. SQS and Lambda process at least once; use idempotent processing as well."
+      ],
+      "references": [
+        "https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html"
+      ]
+    },
+    {
+      "question": 108,
+      "sourcePages": [
+        108,
+        109
+      ],
+      "issues": [
+        "The supplied answer uses RDS event notifications for application row changes. RDS events describe changes to the RDS environment, not individual sales or row changes."
+      ],
+      "references": [
+        "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/working-with-events.html"
+      ]
+    },
+    {
+      "question": 125,
+      "sourcePages": [
+        125,
+        126,
+        127
+      ],
+      "issues": [
+        "Unexpected option sequence: ['A', 'B', 'C', 'D', 'D']",
+        "Unexpected answer: AE"
+      ]
+    }
+  ],
+  "note": "Automated checks do not prove exact text fidelity. Review PDF pages against JSON."
+}

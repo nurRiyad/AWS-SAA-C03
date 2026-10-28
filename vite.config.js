@@ -7,8 +7,18 @@ const examDirectories = readdirSync(new URL('./data/exams/', import.meta.url), {
 const exams = Object.fromEntries(examDirectories.map(({ name }) => {
   const folder = new URL(`./data/exams/${name}/`, import.meta.url);
   const metadata = JSON.parse(readFileSync(new URL('exam.json', folder), 'utf8'));
-  const revision = readFileSync(new URL(metadata.revisionFile, folder), 'utf8');
   const questionBank = JSON.parse(readFileSync(new URL(metadata.questionsFile, folder), 'utf8'));
+  const revision = metadata.revisionFile
+    ? readFileSync(new URL(metadata.revisionFile, folder), 'utf8')
+    : `---\ntitle: ${metadata.title} Revision Guide\nnumber: ${metadata.number}\n---\n\n## ${metadata.title} Question Revision Guide\n\n${questionBank.questions.map((question, index) => {
+      const answerIds = Array.isArray(question.answer) ? question.answer : [question.answer];
+      const answer = answerIds.map((id) => {
+        const option = question.options?.find((candidate) => candidate.id === id);
+        return option ? `${id}: ${option.text}` : id;
+      }).join('; ');
+      const explanation = question.explanation || question.rationale || '';
+      return `${index + 1}. **${question.question}**\n   **Remember:** ${answer}${explanation ? ` — ${explanation}` : ''}`;
+    }).join('\n\n')}\n\n## The patterns to memorize\n\nReview the questions and explanations above, then retake the exam to reinforce the key AWS service choices.`;
   return [name, { ...metadata, revision, questions: questionBank.questions }];
 }));
 
@@ -16,14 +26,27 @@ function examRoutes() {
   return {
     name: 'exam-routes',
     configureServer(server) {
+      // Exam data is embedded in Vite's define configuration, so reload it when
+      // a guide or its metadata changes instead of serving the startup snapshot.
+      server.watcher.add(resolve('data/exams'));
+      server.watcher.on('all', (event, path) => {
+        if (['add', 'change', 'unlink'].includes(event) && /[/\\]data[/\\]exams[/\\].*\.(json|md)$/.test(path)) {
+          server.restart();
+        }
+      });
       server.middlewares.use(async (req, res, next) => {
         const match = req.url?.match(/^\/exams\/(\d+)(?:\/(revision|mcq))?\/?(?:\?.*)?$/);
         if (!match || !exams[match[1]]) return next();
         const [, number, view = 'hub'] = match;
-        const templateFile = view === 'revision' ? 'exam.html' : view === 'mcq' ? 'mcq.html' : 'exam-home.html';
+        if (view === 'hub') {
+          res.statusCode = 302;
+          res.setHeader('Location', `/exams/${number}/mcq/`);
+          return res.end();
+        }
+        const templateFile = view === 'revision' ? 'src/pages/exam.html' : 'src/pages/mcq.html';
         const source = readFileSync(resolve(templateFile), 'utf8')
-          .replaceAll('href="./styles.css"', 'href="/styles.css"')
-          .replaceAll('src="./src/', 'src="/src/')
+          .replaceAll('href="../styles/styles.css"', 'href="/src/styles/styles.css"')
+          .replaceAll('src="../', 'src="/src/')
           .replace('data-exam=""', `data-exam="${number}"`);
         try {
           const html = await server.transformIndexHtml(req.url, source);
@@ -37,16 +60,22 @@ function examRoutes() {
     },
     writeBundle() {
       const routeTypes = [
-        { view: 'hub', template: 'exam-home.html', segments: 2, suffix: '' },
-        { view: 'revision', template: 'exam.html', segments: 3, suffix: '/revision' },
-        { view: 'mcq', template: 'mcq.html', segments: 3, suffix: '/mcq' },
+        { view: 'hub' },
+        { view: 'revision', template: 'src/pages/exam.html', segments: 3, suffix: '/revision' },
+        { view: 'mcq', template: 'src/pages/mcq.html', segments: 3, suffix: '/mcq' },
       ];
       for (const [number] of Object.entries(exams)) {
         for (const route of routeTypes) {
+          if (route.view === 'hub') {
+            const outputDir = resolve(`dist/exams/${number}`);
+            mkdirSync(outputDir, { recursive: true });
+            writeFileSync(resolve(outputDir, 'index.html'), '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=./mcq/"><title>Opening exam</title></head><body><a href="./mcq/">Open exam</a></body></html>');
+            continue;
+          }
           const template = readFileSync(resolve(`dist/${route.template}`), 'utf8');
           const relativeAssets = '../'.repeat(route.segments);
           const page = template
-            .replaceAll('="./assets/', `="${relativeAssets}assets/`)
+            .replace(/="(?:\.\.\/|\.\/)*assets\//g, `="${relativeAssets}assets/`)
             .replace('data-exam=""', `data-exam="${number}"`);
           const outputDir = resolve(`dist/exams/${number}${route.suffix}`);
           mkdirSync(outputDir, { recursive: true });
@@ -61,7 +90,7 @@ export default defineConfig({
   base: './',
   build: {
     rollupOptions: {
-      input: ['index.html', 'exam-home.html', 'exam.html', 'mcq.html'],
+      input: ['index.html', 'src/pages/exam.html', 'src/pages/mcq.html'],
     },
   },
   plugins: [examRoutes()],
